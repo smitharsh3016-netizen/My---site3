@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aditi, Will You Be Mine? 💖</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #8B0000 0%, #000000 50%, #2c1810 100%);
+            color: #FFC1CC;
+            min-height: 100vh;
+            position: relative;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(3rem, 8vw, 6rem);
+            color: #FFC1CC;
+            text-shadow: 0 0 20px rgba(255,193,204,0.5);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .countdown {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            background: rgba(0,0,0,0.5);
+            padding: 15px 30px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        .buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .yes-btn {
+            background: linear-gradient(45deg, #FFC1CC, #FF69B4);
+            color: #8B0000;
+            box-shadow: 0 10px 30px rgba(255,193,204,0.4);
+        }
+        .yes-btn:hover { transform: scale(1.1); box-shadow: 0 15px 40px rgba(255,193,204,0.6); }
+        .no-btn {
+            background: transparent;
+            color: #FFC1CC;
+            border: 2px solid #FFC1CC;
+        }
+        .no-btn:hover { background: #FFC1CC; color: #8B0000; }
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: #FFC1CC;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        .story-section {
+            padding: 100px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s;
+        }
+        .story-section.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .story-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #FFC1CC;
+        }
+        .love-note {
+            background: rgba(255,193,204,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            border-left: 5px solid #FFC1CC;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        @media (max-width: 768px) {
+            .buttons { flex-direction: column; align-items: center; }
+            button { width: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <audio id="bgMusic" loop>
+        <!-- Replace with your romantic MP3 from Chosic.com -->
+        <source src="romantic-bg-music.mp3" type="audio/mpeg">
+    </audio>
+    
+    <button class="music-control" onclick="toggleMusic()">🎵</button>
+    
+    <canvas id="heartsCanvas"></canvas>
+    
+    <section class="hero">
+        <div class="countdown" id="countdown"></div>
+        <h1>Aditi 💖</h1>
+        <h2 style="font-size: 1.5rem; margin-bottom: 40px;">Will You Be Mine Forever?</h2>
+        <div class="buttons">
+            <button class="yes-btn" onclick="celebrate()">Yes! 💕</button>
+            <button class="no-btn" onclick="maybeLater()">Maybe Later 😊</button>
+        </div>
+    </section>
+    
+    <section class="story-section" id="story1">
+        <h2 class="story-title">Our Love Story ✨</h2>
+        <div class="love-note">
+            <p>From the moment I saw you, my world changed. Every smile, every moment we've shared has been magical. You are my everything, Aditi.</p>
+        </div>
+        <div class="love-note">
+            <p>Remember our first coffee date? The way you laughed made my heart skip a beat. I want a lifetime of those moments with you.</p>
+        </div>
+    </section>
+    
+    <script>
+        // Background Music Control
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.volume = 0.3;
+        bgMusic.play().catch(() => {}); // Autoplay with fallback
+        
+        function toggleMusic() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                event.target.textContent = '🔇';
+            } else {
+                bgMusic.pause();
+                event.target.textContent = '🎵';
+            }
+        }
+        
+        // Animated Floating Hearts
+        const canvas = document.getElementById('heartsCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        function createHeart() {
+            return {
+                x: Math.random() * canvas.width,
+                y: canvas.height + 100,
+                size: Math.random() * 20 + 10,
+                speed: Math.random() * 2 + 1,
+                opacity: Math.random() * 0.5 + 0.2,
+                color: `hsl(${Math.random()*20 + 340}, 100%, ${Math.random()*20 + 70}%)`
+            };
+        }
+        
+        let hearts = [];
+        for(let i = 0; i < 15; i++) hearts.push(createHeart());
+        
+        function animateHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach((heart, i) => {
+                ctx.save();
+                ctx.globalAlpha = heart.opacity;
+                ctx.fillStyle = heart.color;
+                ctx.translate(heart.x, heart.y);
+                ctx.scale(heart.size/20, heart.size/20);
+                ctx.beginPath();
+                ctx.moveTo(0, -heart.size/2);
+                ctx.bezierCurveTo(-heart.size/2, -heart.size/2, -heart.size, 0, -heart.size/2, heart.size/2);
+                ctx.bezierCurveTo(-heart.size/2, heart.size/2, 0, heart.size, heart.size/2, heart.size/2);
+                ctx.bezierCurveTo(heart.size/2, heart.size/2, heart.size, 0, heart.size/2, -heart.size/2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+                
+                heart.y -= heart.speed;
+                heart.opacity -= 0.005;
+                if (heart.y < 0 || heart.opacity <= 0) hearts[i] = createHeart();
+            });
+            requestAnimationFrame(animateHearts);
+        }
+        animateHearts();
+        
+        // Countdown Timer
+        function updateCountdown() {
+            const now = new Date();
+            const specialDate = new Date('2025-12-25T20:00:00'); // Christmas proposal?
+            const diff = specialDate - now;
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000*60*60*24));
+                const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+                document.getElementById('countdown').textContent = `⏰ ${days}d ${hours}h until our special moment`;
+            }
+        }
+        setInterval(updateCountdown, 3600000);
+        updateCountdown();
+        
+        // Celebration Effects
+        function celebrate() {
+            confetti({
+                particleCount: 150,
+                spread: 75,
+                origin: { y: 0.6 },
+                colors: ['#FFC1CC', '#FF69B4', '#8B0000']
+            });
+            for(let i = 0; i < 5; i++) {
+                setTimeout(() => confetti({
+                    particleCount: 100,
+                    angle: 60 - i*15,
+                    spread: 55,
+                    origin: { x: i/5 }
+                }), i * 300);
+            }
+            document.querySelector('.hero h1').textContent = 'SHE SAID YES! 💖💖💖';
+            document.querySelector('.hero h1').style.color = '#FFD700';
+        }
+        
+        function maybeLater() {
+            const btn = event.target;
+            btn.textContent = 'Really? 😢';
+            btn.style.transform = 'translateX(' + (Math.random()-0.5)*100 + 'px)';
+            setTimeout(() => {
+                btn.textContent = 'Think about it 💕';
+                btn.style.transform = '';
+            }, 1000);
+        }
+        
+        // Scroll Animations
+        window.addEventListener('scroll', () => {
+            document.querySelectorAll('.story-section').forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    section.classList.add('animate');
+                }
+            });
+        });
+        
+        // Responsive Canvas
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
